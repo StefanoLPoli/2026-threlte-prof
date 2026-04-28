@@ -19,7 +19,7 @@
     • performance monitor
   ──────────────────────────────────────────────────────
 -->
-<script lang="ts">
+<script>
   import { Canvas } from '@threlte/core'
   // import { dev } from '$app/environment'
   import { Studio } from '@threlte/studio'

@@ -11,7 +11,7 @@
     Genera un componente Svelte con tutti i nodi e materiali già nominati,
     utile quando si vuole controllare singole parti del modello.
 -->
-<script lang="ts">
+<script>
   import { T } from '@threlte/core'
   import { useGltf } from '@threlte/extras'
   import * as THREE from 'three'

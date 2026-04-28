@@ -4,7 +4,7 @@
   Legge e scrive direttamente su `config` (stato globale).
   Scene.svelte e Model.svelte reagiscono automaticamente ai cambiamenti.
 -->
-<script lang="ts">
+<script>
   import { config } from '$lib/config.svelte.js'
   import Slider from './Slider.svelte'
 
@@ -18,13 +18,13 @@
     { name: 'Antracite', value: '#363945' },
   ]
 
-  // Atmosfere disponibili (le impostazioni dettagliate sono in config.svelte.ts)
+  // Atmosfere disponibili (le impostazioni dettagliate sono in config.svelte.js)
   const atmospheres = [
     { id: 'studio',   label: 'Studio'   },
     { id: 'tramonto', label: 'Tramonto' },
     { id: 'notte',    label: 'Notte'    },
     { id: 'artico',   label: 'Artico'   },
-  ] as const
+  ]
 </script>
 
 <aside class="card">

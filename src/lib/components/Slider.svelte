@@ -7,20 +7,8 @@
     min/max — intervallo
     step    — incremento minimo
 -->
-<script lang="ts">
-  let {
-    label,
-    value = $bindable(),
-    min,
-    max,
-    step,
-  }: {
-    label: string
-    value: number
-    min: number
-    max: number
-    step: number
-  } = $props()
+<script>
+  let { label, value = $bindable(), min, max, step } = $props()
 
   // Percentuale di riempimento per la traccia colorata
   let fill = $derived(((value - min) / (max - min)) * 100)

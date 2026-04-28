@@ -7,7 +7,7 @@
     <T.DirectionalLight>  → new THREE.DirectionalLight(...)
   I props corrispondono alle proprietà Three.js dell'oggetto.
 -->
-<script lang="ts">
+<script>
   import { T, useThrelte } from '@threlte/core'
   import { OrbitControls } from '@threlte/extras'
   import * as THREE from 'three'
