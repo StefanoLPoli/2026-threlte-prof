@@ -15,12 +15,17 @@
   import { config, atmosphereSettings } from '$lib/config.svelte.js'
   import Model from './Model.svelte'
 
+  // Prop per la rotazione del casco
+  const { 
+    rotation = { x: 0, y: 0, z: 0 },
+    position = { x: 0, y: 0, z: 0 },
+    orbitControlVal = true
+  } = $props();
+
   // useThrelte() espone il renderer WebGL e la scena Three.js
   const { renderer, scene } = useThrelte()
 
   // Imposta RoomEnvironment come mappa di riflessione/illuminazione
-  // PMREMGenerator pre-filtra la texture per PBR (Physically Based Rendering)
-  // Questo avviene una sola volta al mount del componente
   $effect(() => {
     const pmrem = new THREE.PMREMGenerator(renderer)
     scene.environment = pmrem.fromScene(new RoomEnvironment()).texture
@@ -28,12 +33,12 @@
   })
 
   // Aggiorna il colore dello sfondo al cambio di atmosfera
-  $effect(() => {
+  // Togliamo lo sfondo
+  /*$effect(() => {
     scene.background = new THREE.Color(atmosphereSettings[config.atmosphere].bg)
-  })
+  })*/
 
   // Valori derivati dall'atmosfera selezionata
-  // $derived: si ricalcola automaticamente quando config.atmosphere cambia
   let lightColor     = $derived(atmosphereSettings[config.atmosphere].lightColor)
   let lightIntensity = $derived(atmosphereSettings[config.atmosphere].lightIntensity)
   let ambientIntensity = $derived(atmosphereSettings[config.atmosphere].ambientIntensity)
@@ -43,17 +48,20 @@
   makeDefault: rende questa la camera attiva per il Canvas
   I figli di <T.PerspectiveCamera> ricevono la camera come contesto
 -->
-<T.PerspectiveCamera makeDefault position={[ 1.0553, 1.2376, 7.0134 ]} fov={48.25}>
+<T.PerspectiveCamera makeDefault position={[ 0, -0.01, 6.0 ]} fov={33} scale={[ 1, 1, 1 ]} rotation={[ -0.0106, -3.4109, 0.0019 ]} visible>
   <!--
     OrbitControls: ruota con il mouse, zoom con la rotella
     enableDamping: inerzia fluida (aggiornato ogni frame automaticamente da Threlte)
   -->
   <OrbitControls
-    enableDamping
     dampingFactor={0.05}
-    minDistance={2}
-    maxDistance={8}
+    minDistance={6}
+    maxDistance={10}
     maxPolarAngle={Math.PI / 1.8}
+    enableRotate={orbitControlVal}
+    enableZoom={orbitControlVal}
+    enablePan={orbitControlVal}
+    enableDamping={orbitControlVal}
   />
 </T.PerspectiveCamera>
 
@@ -66,7 +74,9 @@
 />
 
 <!-- Luce ambientale: illumina uniformemente tutta la scena -->
-<T.AmbientLight intensity={ambientIntensity} />
+<T.AmbientLight intensity={ambientIntensity} position={[ -0.1, 0, 0 ]} />
 
-<!-- Il modello 3D -->
-<Model />
+<!-- Il modello 3D ruotato secondo la prop -->
+<T.Group rotation={[rotation.x, rotation.y, rotation.z]} position={[position.x, position.y, position.z]}>
+  <Model />
+</T.Group>
