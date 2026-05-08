@@ -178,9 +178,26 @@
       updateRotationWithDelay(selected);
     }
   }
+
+  let touchStartY = 0;
+
+  function ontouchstart(e) {
+    touchStartY = e.touches[0].clientY;
+  }
+
+  function ontouchend(e) {
+    const delta = touchStartY - e.changedTouches[0].clientY;
+    if (Math.abs(delta) < 10) return; // ignora tap accidentali
+    if (delta > 0 && selected < faces.length - 1) {
+      selected++;
+    } else if (delta < 0 && selected > 0) {
+      selected--;
+    }
+    updateRotationWithDelay(selected);
+  }
 </script>
 
-<div class="gallery-layout" onwheel={onwheel}>
+<div class="gallery-layout" role="application" onwheel={onwheel} ontouchstart={ontouchstart} ontouchend={ontouchend}>
   <div class="names">
     {#each displaySlots as slot}
       {#if slot.isEmpty}
@@ -198,6 +215,7 @@
       {/if}
     {/each}
   </div>
+
   
   <div class="viewer">
     <Canvas renderMode="always">
@@ -298,4 +316,41 @@
     justify-content: flex-end;
     padding-left: 45%;
   }
+
+  @media (max-width: 768px) {
+  .names {
+    align-items: center;
+    padding: 0 2rem;
+    gap: 2.5rem;
+  }
+
+  .name {
+    font-size: 2rem;
+    text-align: center;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.35);
+    letter-spacing: 0.01em;
+  }
+
+  .name.selected {
+    transform: scale(1.15);
+    transform-origin: center center;
+    margin-left: 0;
+    font-size: 2.4rem;
+  }
+
+  .name.selected:hover {
+    transform: scale(1.15);
+  }
+
+  .name:hover:not(.empty) {
+    margin-left: 0;
+  }
+
+  .viewer {
+    padding-left: 0;
+    justify-content: center;
+    opacity: 0.4;
+  }
+}
+
 </style>
