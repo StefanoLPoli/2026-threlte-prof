@@ -48,7 +48,7 @@
   makeDefault: rende questa la camera attiva per il Canvas
   I figli di <T.PerspectiveCamera> ricevono la camera come contesto
 -->
-<T.PerspectiveCamera makeDefault position={[ 0, -0.01, 6.0 ]} fov={33} scale={[ 1, 1, 1 ]} rotation={[ -0.0106, -3.4109, 0.0019 ]} visible>
+<T.PerspectiveCamera makeDefault position={[ 0, -0.01, 6.0 ]} fov={24} scale={[ 1, 1, 1 ]} rotation={[ -0.0106, -3.4109, 0.0019 ]} visible>
   <!--
     OrbitControls: ruota con il mouse, zoom con la rotella
     enableDamping: inerzia fluida (aggiornato ogni frame automaticamente da Threlte)

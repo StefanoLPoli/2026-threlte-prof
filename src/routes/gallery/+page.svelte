@@ -2,7 +2,7 @@
   import { Canvas } from '@threlte/core'
   import Scene from '$lib/components/Scene.svelte'
   
-  // Dati placeholder - le rotazioni sono in radianti
+  // Dati degli atleti - le rotazioni sono in radianti
   const faces = [
     { 
       name: 'Maksym Halinichev', 
@@ -115,40 +115,52 @@
       position: { x: 0, y: 0, z: 0 }
     }
   ];
+
   let selected = $state(0);
   let activeRotation = $state(faces[0].rotation);
   let activePosition = $state(faces[0].position);
   let timeoutId = null;
-  let visibleStart = $state(0);
   
-  // Funzione per aggiornare la rotazione con delay
   function updateRotationWithDelay(index) {
-    // Cancella il timeout precedente se esiste
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
     
-    // Imposta un nuovo timeout di 1 secondo
     timeoutId = setTimeout(() => {
       activeRotation = faces[index].rotation;
       activePosition = faces[index].position;
     }, 400);
   }
   
-  $effect(() => {
-    if (selected < 2) {
-      visibleStart = 0;
-    } else if (selected > faces.length - 3) {
-      visibleStart = Math.max(0, faces.length - 5);
-    } else {
-      visibleStart = selected - 2;
+  // Calcola i 5 slot (sempre 5, con eventuali spazi vuoti)
+  let displaySlots = $derived.by(() => {
+    const slots = [];
+    
+    // 2 slot sopra il selezionato
+    for (let i = 2; i >= 1; i--) {
+      const index = selected - i;
+      if (index >= 0) {
+        slots.push({ name: faces[index].name, index: index, isEmpty: false });
+      } else {
+        slots.push({ name: '', index: -1, isEmpty: true });
+      }
     }
+    
+    // Il selezionato al centro
+    slots.push({ name: faces[selected].name, index: selected, isEmpty: false });
+    
+    // 2 slot sotto il selezionato
+    for (let i = 1; i <= 2; i++) {
+      const index = selected + i;
+      if (index < faces.length) {
+        slots.push({ name: faces[index].name, index: index, isEmpty: false });
+      } else {
+        slots.push({ name: '', index: -1, isEmpty: true });
+      }
+    }
+    
+    return slots;
   });
-  
-  function getVisibleFaces() {
-    const end = Math.min(visibleStart + 5, faces.length);
-    return faces.slice(visibleStart, end);
-  }
   
   function onwheel(e) {
     e.preventDefault();
@@ -157,29 +169,33 @@
     } else if (e.deltaY < 0 && selected > 0) {
       selected--;
     }
-    // Chiama la funzione con delay ogni volta che cambia la selezione
     updateRotationWithDelay(selected);
   }
   
   function selectFace(index) {
-    selected = visibleStart + index;
-    updateRotationWithDelay(selected);
+    if (index !== -1) {
+      selected = index;
+      updateRotationWithDelay(selected);
+    }
   }
 </script>
 
 <div class="gallery-layout" onwheel={onwheel}>
   <div class="names">
-    {#each getVisibleFaces() as face, i}
-      {@const actualIndex = visibleStart + i}
-      <div 
-        class="name {actualIndex === selected ? 'selected' : ''}"
-        onclick={() => selectFace(i)}
-        role="button"
-        tabindex="0"
-        onkeydown={(e) => e.key === 'Enter' && selectFace(i)}
-      >
-        {face.name}
-      </div>
+    {#each displaySlots as slot}
+      {#if slot.isEmpty}
+        <div class="name empty"></div>
+      {:else}
+        <div 
+          class="name {slot.index === selected ? 'selected' : ''}"
+          onclick={() => selectFace(slot.index)}
+          role="button"
+          tabindex="0"
+          onkeydown={(e) => e.key === 'Enter' && selectFace(slot.index)}
+        >
+          {slot.name}
+        </div>
+      {/if}
     {/each}
   </div>
   
@@ -195,6 +211,15 @@
 </div>
 
 <style>
+  @font-face {
+    font-family: 'GeistPixel';
+    src: url('/fonts/GeistPixel-Square.woff2') format('woff2'),
+        url('/fonts/GeistPixel-Square.woff') format('woff'),
+        url('/fonts/GeistPixel-Square.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
   .gallery-layout {
     display: flex;
     height: 100vh;
@@ -221,9 +246,11 @@
   }
   
   .name {
+    font-family: 'GeistPixel', monospace;
     font-size: 5rem;
-    font-weight: 900;
-    color: rgba(255, 255, 255, 0.1);
+    font-weight: normal;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.5);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     letter-spacing: -0.03em;
@@ -232,19 +259,25 @@
     text-transform: uppercase;
   }
   
+  .name.empty {
+    pointer-events: none;
+  }
+
   .name.selected {
+    font-family: 'GeistPixel', monospace;
     color: rgba(255, 255, 255, 1);
-    transform: scale(1.15);
+    -webkit-text-stroke: 0;
+    transform: scale(1.30);
+    transform-origin: left center;
     text-shadow: 
       0 0 20px rgba(255, 255, 255, 0.5),
       0 0 40px rgba(255, 255, 255, 0.3),
       0 0 80px rgba(255, 255, 255, 0.2);
-    margin-left: 2rem;
   }
   
-  .name:hover {
-    color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.05);
+  .name:hover:not(.empty) {
+    -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.9);
+    
     margin-left: 1rem;
   }
   
@@ -265,6 +298,4 @@
     justify-content: flex-end;
     padding-left: 45%;
   }
-  
-
 </style>
